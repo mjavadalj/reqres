@@ -2,21 +2,21 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 export type UserDocument = User & Document;
 
-@Schema()
+@Schema({ timestamps: true })
 export class User {
-  @Prop({ required: true, unique: true })
+  @Prop()
   email: string;
 
   @Prop({ required: true })
   name: string;
 
   @Prop()
-  job: Date;
+  job: string;
 
   @Prop({ enum: ['normal', 'admin'], default: 'normal' })
   role: string;
 
-  @Prop({ required: true })
+  @Prop()
   password: string;
 }
 
