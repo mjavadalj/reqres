@@ -13,20 +13,30 @@ import {
   Req,
   UnauthorizedException,
   Query,
+  Inject,
 } from '@nestjs/common';
 
+import { Cache } from 'cache-manager';
 import { UserService } from './user.service';
-import { CacheInterceptor, CacheTTL, CacheKey } from '@nestjs/cache-manager';
+import {
+  CacheInterceptor,
+  CacheTTL,
+  CacheKey,
+  CACHE_MANAGER,
+} from '@nestjs/cache-manager';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags, ApiResponse, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
-// import { Query } from 'mongoose';
-import { CreateUserDto } from './dto/admin/createUser.dto';
+import { CreateUserDto } from './dto/createUser.dto';
+
 @ApiTags('User')
 @Controller('user')
 @UseGuards(AuthGuard())
 export class UserController {
   private logger = new Logger('UserController');
-  constructor(private readonly service: UserService) {}
+  constructor(
+    @Inject(CACHE_MANAGER) private cacheService: Cache,
+    private readonly service: UserService,
+  ) {}
 
   @UseInterceptors(CacheInterceptor)
   @CacheKey('getAllUsers')
@@ -75,7 +85,7 @@ export class UserController {
     this.logger.verbose(
       `User: ${req.user.email} creating user: ${createUserDto.name}`,
     );
-
+    await this.cacheService.reset();
     return await this.service.createUser(createUserDto);
   }
   @Put('users/:id')
@@ -97,6 +107,7 @@ export class UserController {
       `User: ${req.user.email} updating (put) user with id: ${id}`,
     );
 
+    await this.cacheService.reset();
     return await this.service.updateUser(createUserDto, id, 'put');
   }
   @Patch('users/:id')
@@ -115,6 +126,7 @@ export class UserController {
       `User: ${req.user.email} updating (patch) user with id: ${id}`,
     );
 
+    await this.cacheService.reset();
     return await this.service.updateUser(createUserDto, id, 'patch');
   }
 
@@ -128,6 +140,7 @@ export class UserController {
     }
     this.logger.verbose(`User: ${req.user.email} deleting user with id: ${id}`);
 
+    await this.cacheService.reset();
     return await this.service.deletUser(id);
   }
 }
