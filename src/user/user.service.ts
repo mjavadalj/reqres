@@ -9,12 +9,13 @@ import { Model } from 'mongoose';
 import { User, UserDocument } from './user.schema';
 
 import { CreateUserDto } from './dto/createUser.dto';
+import { GetAllUsersDto } from './dto/getAllUsersDto.dto';
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
   ) {}
-  async getAllUsers(page: number) {
+  async getAllUsers(page: number): Promise<GetAllUsersDto> {
     const total = await this.userModel.find().count();
     const result = {
       page,

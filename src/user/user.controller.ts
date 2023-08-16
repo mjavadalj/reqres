@@ -27,7 +27,10 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags, ApiResponse, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { CreateUserDto } from './dto/createUser.dto';
+import { UserDto } from './dto/user.dto';
+import { GetAllUsersDto } from './dto/getAllUsersDto.dto';
 
+import { User } from './user.schema';
 @ApiTags('User')
 @Controller('user')
 @UseGuards(AuthGuard())
@@ -45,7 +48,7 @@ export class UserController {
   @ApiResponse({ status: 200, description: 'Get all users success' })
   @ApiResponse({ status: 403, description: 'forbidden' })
   @ApiBearerAuth('Authorization')
-  async getAllUsers(@Req() req, @Query() query) {
+  async getAllUsers(@Req() req, @Query() query): Promise<GetAllUsersDto> {
     this.logger.verbose(`User: ${req.user.email} Getting all users list`);
     if (req.user.role != 'admin') {
       throw new UnauthorizedException();
@@ -63,7 +66,7 @@ export class UserController {
   @ApiResponse({ status: 200, description: 'Get single user success' })
   @ApiResponse({ status: 403, description: 'forbidden' })
   @ApiBearerAuth('Authorization')
-  async getSingleUser(@Param('id') id, @Req() req) {
+  async getSingleUser(@Param('id') id, @Req() req): Promise<User> {
     if (
       req.user.role != 'admin' ||
       (req.user.role == 'normal' && id != req.user._id)
