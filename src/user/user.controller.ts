@@ -122,7 +122,10 @@ export class UserController {
     @Param('id') id,
     @Req() req,
   ) {
-    if (req.user.role != 'admin') {
+    if (
+      req.user.role != 'admin' ||
+      (req.user.role == 'normal' && id != req.user._id)
+    ) {
       throw new UnauthorizedException();
     }
     this.logger.verbose(

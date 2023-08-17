@@ -12,9 +12,7 @@ import { CreateUserDto } from './dto/createUser.dto';
 import { GetAllUsersDto } from './dto/getAllUsersDto.dto';
 @Injectable()
 export class UserService {
-  constructor(
-    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
-  ) {}
+  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
   async getAllUsers(page: number): Promise<GetAllUsersDto> {
     const total = await this.userModel.find().count();
     const result = {
@@ -31,11 +29,14 @@ export class UserService {
     return result;
   }
   async getSingleUser(id) {
-    const data = await this.userModel.findOne({ _id: id }).exec(); //foundedUser
+    const data = await this.findOne(id);
     if (!data) {
       throw new NotFoundException();
     }
     return data;
+  }
+  async findOne(id) {
+    return await this.userModel.findOne({ _id: id }).exec();
   }
   async createUser(createUserDto: CreateUserDto): Promise<User> {
     const { name, job } = createUserDto;
